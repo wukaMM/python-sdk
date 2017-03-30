@@ -30,8 +30,7 @@ def put_data(
     crc = crc32(data) if check_crc else None
     return _form_put(up_token, key, data, params, mime_type, crc, progress_handler, fname)
 
-
-def put_file(up_token, key, file_path, params=None,
+def put_file(up_token, key, input_stream, size, file_name, params=None,
              mime_type='application/octet-stream', check_crc=False,
              progress_handler=None, upload_progress_recorder=None):
     """上传文件到七牛
@@ -39,7 +38,8 @@ def put_file(up_token, key, file_path, params=None,
     Args:
         up_token:         上传凭证
         key:              上传文件名
-        file_path:        上传文件的路径
+        input_stream:     上传文件的流
+        file_name:        上传文件的名称
         params:           自定义变量，规格参考 http://developer.qiniu.com/docs/v6/api/overview/up/response/vars.html#xvar
         mime_type:        上传数据的mimeType
         check_crc:        是否校验crc32
@@ -51,19 +51,16 @@ def put_file(up_token, key, file_path, params=None,
         一个ResponseInfo对象
     """
     ret = {}
-    size = os.stat(file_path).st_size
-    # fname = os.path.basename(file_path)
-    with open(file_path, 'rb') as input_stream:
-        file_name = os.path.basename(file_path)
-        if size > config._BLOCK_SIZE * 2:
-            ret, info = put_stream(up_token, key, input_stream, file_name, size, params,
-                                   mime_type, progress_handler,
-                                   upload_progress_recorder=upload_progress_recorder,
-                                   modify_time=(int)(os.path.getmtime(file_path)))
-        else:
-            crc = file_crc32(file_path) if check_crc else None
-            ret, info = _form_put(up_token, key, input_stream, params, mime_type, crc, progress_handler, file_name)
-            # ret, info = _form_put(up_token, key, input_stream, params, mime_type, crc, progress_handler)
+
+    if size > config._BLOCK_SIZE * 2:
+        ret, info = put_stream(up_token, key, input_stream, file_name, size, params,
+                               mime_type, progress_handler,
+                               upload_progress_recorder=upload_progress_recorder,
+                               modify_time=(int)(time.time()))
+    else:
+        crc = None
+        ret, info = _form_put(up_token, key, input_stream, params, mime_type, crc, progress_handler, file_name)
+        # ret, info = _form_put(up_token, key, input_stream, params, mime_type, crc, progress_handler)
     return ret, info
 
 
