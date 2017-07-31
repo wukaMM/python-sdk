@@ -51,7 +51,7 @@ def put_file(up_token, key, input_stream, size, params=None,
     """
     ret = {}
 
-    if size > config._BLOCK_SIZE * 2:
+    if size > config._BLOCK_SIZE * 4:
         ret, info = put_stream(up_token, key, input_stream, size, params,
                                mime_type, progress_handler,
                                upload_progress_recorder=upload_progress_recorder,
