@@ -13,7 +13,7 @@ _config = {
     'default_rs_host': RS_HOST,
     'default_rsf_host': RSF_HOST,
     'default_api_host': API_HOST,
-    'connection_timeout': 30,        # 链接超时为时间为30s
+    'connection_timeout': 100,        # 链接超时为时间为30s
     'connection_retries': 3,         # 链接重试次数为3次
     'connection_pool': 10,           # 链接池个数为10
 }
